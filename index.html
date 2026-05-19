@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Fired Up</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 0 1rem 8vh;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 12vw, 9rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      background: linear-gradient(180deg, #fff6e0 0%, #ffb347 40%, #ff4500 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 40px rgba(255, 100, 0, 0.6));
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { filter: drop-shadow(0 0 30px rgba(255, 100, 0, 0.5)); }
+      50%       { filter: drop-shadow(0 0 70px rgba(255, 160, 0, 0.9)); }
+    }
+
+    p {
+      margin-top: 1rem;
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      color: rgba(255, 200, 120, 0.85);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    button {
+      margin-top: 2rem;
+      padding: 0.75rem 2.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+      background: transparent;
+      border: 2px solid rgba(255, 120, 0, 0.7);
+      border-radius: 4px;
+      cursor: pointer;
+      pointer-events: all;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      background: rgba(255, 80, 0, 0.25);
+      border-color: #ff6a00;
+      box-shadow: 0 0 24px rgba(255, 100, 0, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fire"></canvas>
+
+  <div class="content">
+    <h1>GET FIRED UP</h1>
+    <p>Ignite your potential &mdash; burn bright</p>
+    <button id="btn">Add Fuel</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('fire');
+    const ctx = canvas.getContext('2d');
+
+    let W, H, cols, cooling;
+    const SCALE = 4;
+
+    function resize() {
+      W = Math.ceil(window.innerWidth / SCALE);
+      H = Math.ceil(window.innerHeight / SCALE);
+      canvas.width = W;
+      canvas.height = H;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      cols = W;
+      cooling = new Float32Array(W * H);
+    }
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Fire palette: black → deep red → orange → yellow → white
+    function makepalette() {
+      const pal = new Uint32Array(256);
+      for (let i = 0; i < 256; i++) {
+        let r, g, b;
+        if (i < 64) {
+          r = i * 3; g = 0; b = 0;
+        } else if (i < 128) {
+          r = 192 + (i - 64); g = (i - 64) * 3; b = 0;
+        } else if (i < 192) {
+          r = 255; g = 192 + (i - 128); b = (i - 128) * 2;
+        } else {
+          r = 255; g = 255; b = 128 + (i - 192) * 2;
+        }
+        pal[i] = (255 << 24) | (Math.min(b,255) << 16) | (Math.min(g,255) << 8) | Math.min(r,255);
+      }
+      return pal;
+    }
+    const palette = makepalette();
+
+    let heat = new Float32Array(W * H);
+    let intensity = 1.0;
+
+    function igniteBase() {
+      for (let x = 0; x < cols; x++) {
+        const v = (Math.random() > 0.05 ? 0.85 + Math.random() * 0.15 : 0.3 + Math.random() * 0.4) * intensity;
+        heat[(H - 1) * cols + x] = v;
+        heat[(H - 2) * cols + x] = v * 0.9;
+      }
+    }
+
+    function step() {
+      igniteBase();
+      for (let y = 0; y < H - 2; y++) {
+        for (let x = 0; x < cols; x++) {
+          const xl = (x - 1 + cols) % cols;
+          const xr = (x + 1) % cols;
+          const avg =
+            heat[(y + 1) * cols + xl] * 0.2 +
+            heat[(y + 1) * cols + x]  * 0.4 +
+            heat[(y + 1) * cols + xr] * 0.2 +
+            heat[(y + 2) * cols + x]  * 0.2;
+          const cool = 0.012 + Math.random() * 0.018;
+          heat[y * cols + x] = Math.max(0, avg - cool);
+        }
+      }
+    }
+
+    function draw() {
+      const img = ctx.createImageData(W, H);
+      const data = new Uint32Array(img.data.buffer);
+      for (let i = 0; i < W * H; i++) {
+        const idx = Math.min(255, Math.floor(heat[i] * 255));
+        data[i] = palette[idx];
+      }
+      ctx.putImageData(img, 0, 0);
+    }
+
+    function loop() {
+      step();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+
+    document.getElementById('btn').addEventListener('click', () => {
+      intensity = Math.min(intensity + 0.15, 2.0);
+      for (let i = 0; i < 3; i++) igniteBase();
+      setTimeout(() => { intensity = Math.max(1.0, intensity - 0.05); }, 3000);
+    });
+
+    // Mouse / touch drag adds heat
+    function addHeat(cx, cy) {
+      const x = Math.floor(cx / SCALE);
+      const y = Math.floor(cy / SCALE);
+      const r = 8;
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          if (dx * dx + dy * dy > r * r) continue;
+          const nx = (x + dx + cols) % cols;
+          const ny = Math.min(H - 1, Math.max(0, y + dy));
+          heat[ny * cols + nx] = Math.min(1, heat[ny * cols + nx] + 0.5);
+        }
+      }
+    }
+
+    canvas.addEventListener('mousemove', e => {
+      if (e.buttons) addHeat(e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      for (const t of e.touches) addHeat(t.clientX, t.clientY);
+    }, { passive: false });
+  </script>
+</body>
+</html>
