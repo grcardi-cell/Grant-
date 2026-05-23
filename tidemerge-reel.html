@@ -4,17 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TideMerge — Instagram Reel</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
+/* ── Self-hosted subset of Syne via Google Fonts CDN fallback + system stack ── */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Syne:wght@400;700;800&display=swap');
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --cream: #f5f1ea;
   --ink:   #0a0a0a;
   --blue:  #2b7fff;
-  --muted: rgba(10,10,10,0.36);
+  --muted: rgba(10,10,10,0.38);
+  --serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --sans:  'Syne', 'Arial Black', Arial, sans-serif;
 }
 
 body {
@@ -41,14 +43,14 @@ body {
   flex-shrink: 0;
 }
 
-/* Grid texture overlay */
+/* Grid texture */
 .reel::after {
   content: '';
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(10,10,10,0.026) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10,10,10,0.026) 1px, transparent 1px);
+    linear-gradient(rgba(10,10,10,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,10,10,0.025) 1px, transparent 1px);
   background-size: 38px 38px;
   pointer-events: none;
   z-index: 30;
@@ -59,18 +61,18 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.07) 100%);
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.06) 100%);
   pointer-events: none;
   z-index: 31;
 }
 
-/* Grain overlay */
+/* Grain */
 .grain {
   position: absolute;
   inset: 0;
   z-index: 32;
   pointer-events: none;
-  opacity: 0.14;
+  opacity: 0.12;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 200px 200px;
@@ -117,13 +119,13 @@ body {
   pointer-events: none;
   transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
-  gap: 0;
 }
 
-.slide.active {
-  opacity: 1;
-  pointer-events: all;
-}
+/* First slide visible immediately — JS takes over after load */
+#s0 { opacity: 1; pointer-events: all; }
+
+.slide.active   { opacity: 1; pointer-events: all; }
+.slide.inactive { opacity: 0; pointer-events: none; }
 
 /* ── ANIMATED CHILDREN ── */
 .rise {
@@ -132,14 +134,12 @@ body {
   transition: opacity 0.55s ease, transform 0.55s ease;
 }
 
-.slide.active .rise {
-  opacity: 1;
-  transform: translateY(0);
-}
+.slide.active .rise  { opacity: 1; transform: translateY(0); }
+.slide.inactive .rise { opacity: 0; transform: translateY(16px); }
 
-/* ── TYPE SCALE ── */
+/* ── TYPOGRAPHY ── */
 .label {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: 10px;
   letter-spacing: 0.24em;
@@ -149,7 +149,7 @@ body {
 }
 
 .serif-hero {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--serif);
   font-style: italic;
   font-size: clamp(32px, 9.8vw, 48px);
   line-height: 1.12;
@@ -158,7 +158,7 @@ body {
 }
 
 .sans-hero {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: clamp(28px, 8.5vw, 44px);
   line-height: 1.0;
@@ -169,7 +169,7 @@ body {
 }
 
 .body-serif {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--serif);
   font-style: italic;
   font-size: clamp(13px, 3.5vw, 16px);
   line-height: 1.65;
@@ -187,7 +187,7 @@ body {
 }
 
 .wordmark {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: 9px;
   letter-spacing: 0.26em;
@@ -196,7 +196,6 @@ body {
   text-align: center;
 }
 
-/* Brand bar */
 .brand-bar {
   position: absolute;
   bottom: 14px;
@@ -217,43 +216,37 @@ body {
   opacity: 0.45;
 }
 
-/* Large bg slide number */
 .bg-num {
   position: absolute;
   bottom: -14px;
-  right: 10px;
-  font-family: 'Syne', sans-serif;
+  right: 8px;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: clamp(90px, 25vw, 130px);
-  color: rgba(10,10,10,0.035);
+  color: rgba(10,10,10,0.032);
   line-height: 1;
   z-index: 0;
   pointer-events: none;
-  user-select: none;
 }
 
-/* ── SLIDE 0: HOOK ── */
-#hookText {
-  font-family: 'Instrument Serif', Georgia, serif;
+/* ── SLIDE 0: HOOK — typing ── */
+#hookWrap {
+  font-family: var(--serif);
   font-style: italic;
   font-size: clamp(36px, 10.2vw, 52px);
   line-height: 1.12;
   color: var(--ink);
   text-align: center;
-  opacity: 0;
-  transition: opacity 0.2s ease;
   min-height: 3.4em;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-#hookText.visible { opacity: 1; }
-
 #hookCursor {
   display: inline-block;
   width: 3px;
-  height: 0.8em;
+  height: 0.82em;
   background: var(--blue);
   margin-left: 3px;
   vertical-align: middle;
@@ -265,14 +258,12 @@ body {
   50%       { opacity: 0; }
 }
 
-#hookCursor.gone { display: none; }
-
-/* ── SLIDE 2: REVEAL — live indicator ── */
+/* ── SLIDE 2: REVEAL — pulsing dot ── */
 .live-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: 10px;
   letter-spacing: 0.2em;
@@ -295,14 +286,14 @@ body {
   100% { box-shadow: 0 0 0 0   rgba(43,127,255,0); }
 }
 
-/* ── SLIDE 3: HOW IT WORKS — bullets ── */
+/* ── SLIDE 3: BULLETS ── */
 .bullets {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 13px;
   width: 100%;
-  max-width: 256px;
+  max-width: 260px;
   margin-top: 4px;
 }
 
@@ -315,41 +306,21 @@ body {
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-.slide.active .bullets li:nth-child(1) { opacity: 1; transform: none; transition-delay: 0.32s; }
-.slide.active .bullets li:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.58s; }
-.slide.active .bullets li:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.84s; }
+.slide.active .bullets li:nth-child(1) { opacity:1; transform:none; transition-delay:0.32s; }
+.slide.active .bullets li:nth-child(2) { opacity:1; transform:none; transition-delay:0.58s; }
+.slide.active .bullets li:nth-child(3) { opacity:1; transform:none; transition-delay:0.84s; }
 
-.bi {
-  color: var(--blue);
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 14px;
-  line-height: 1.4;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
+.slide.inactive .bullets li { opacity:0; transform:translateX(-14px); transition-delay:0s; }
 
-.bt {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: clamp(13px, 3.6vw, 16px);
-  color: var(--ink);
-  line-height: 1.3;
-}
-
-.bs {
-  font-family: 'Instrument Serif', Georgia, serif;
-  font-style: italic;
-  font-size: clamp(10px, 2.8vw, 13px);
-  color: var(--muted);
-  margin-top: 1px;
-}
+.bi { color:var(--blue); font-family:var(--sans); font-weight:800; font-size:14px; line-height:1.4; flex-shrink:0; margin-top:1px; }
+.bt { font-family:var(--sans); font-weight:800; font-size:clamp(13px,3.6vw,16px); color:var(--ink); line-height:1.3; }
+.bs { font-family:var(--serif); font-style:italic; font-size:clamp(10px,2.8vw,13px); color:var(--muted); margin-top:1px; }
 
 /* ── SLIDE 4: PROOF ── */
 .stat { text-align: center; }
 
 .stat-num {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: clamp(72px, 19.5vw, 100px);
   line-height: 0.92;
@@ -358,7 +329,7 @@ body {
 }
 
 .stat2-num {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: clamp(50px, 13.5vw, 70px);
   line-height: 0.92;
@@ -367,7 +338,7 @@ body {
 }
 
 .stat-lbl {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--serif);
   font-style: italic;
   font-size: clamp(18px, 5vw, 26px);
   color: var(--ink);
@@ -376,7 +347,7 @@ body {
 
 /* ── SLIDE 5: CTA ── */
 .cta-url {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: clamp(17px, 5vw, 24px);
   color: var(--ink);
@@ -389,14 +360,14 @@ body {
 .cta-url::after {
   content: '';
   position: absolute;
-  left: 0; right: 0; bottom: 0;
+  left:0; right:0; bottom:0;
   height: 2.5px;
   background: var(--blue);
   border-radius: 2px;
 }
 
 .handle {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 400;
   font-size: clamp(10px, 2.8vw, 12px);
   letter-spacing: 0.07em;
@@ -405,7 +376,7 @@ body {
 }
 
 .arrow-lbl {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: 10px;
   letter-spacing: 0.18em;
@@ -414,7 +385,7 @@ body {
   margin-bottom: 8px;
 }
 
-/* ── REPLAY BUTTON ── */
+/* ── REPLAY ── */
 #replayBtn {
   position: absolute;
   bottom: 30px;
@@ -426,7 +397,7 @@ body {
   border: none;
   border-radius: 100px;
   padding: 11px 24px;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: 10px;
   letter-spacing: 0.16em;
@@ -437,15 +408,10 @@ body {
   transition: opacity 0.3s ease, transform 0.3s ease, background 0.18s ease;
 }
 
-#replayBtn.show {
-  opacity: 1;
-  pointer-events: all;
-  transform: translateX(-50%) scale(1);
-}
-
+#replayBtn.show { opacity:1; pointer-events:all; transform:translateX(-50%) scale(1); }
 #replayBtn:hover { background: var(--blue); }
 
-/* ── CAPTION SECTION ── */
+/* ── CAPTION ── */
 .caption-section {
   width: min(calc((100vh - 220px) * 9 / 16), calc(100vw - 40px), 420px);
   flex-shrink: 0;
@@ -466,7 +432,7 @@ body {
 }
 
 .caption-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: 9px;
   letter-spacing: 0.22em;
@@ -480,7 +446,7 @@ body {
   border: none;
   border-radius: 100px;
   padding: 7px 15px;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--sans);
   font-weight: 800;
   font-size: 9px;
   letter-spacing: 0.14em;
@@ -489,8 +455,8 @@ body {
   transition: transform 0.18s ease, background 0.18s ease;
 }
 
-#copyBtn:hover  { transform: scale(1.04); }
-#copyBtn.ok     { background: #22c55e; }
+#copyBtn:hover { transform: scale(1.04); }
+#copyBtn.ok    { background: #22c55e; }
 
 #captionText {
   width: 100%;
@@ -499,7 +465,7 @@ body {
   outline: none;
   resize: none;
   color: rgba(255,255,255,0.7);
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: Georgia, serif;
   font-size: 12.5px;
   line-height: 1.78;
   cursor: text;
@@ -508,9 +474,8 @@ body {
 </head>
 <body>
 
-<!-- ══════════════════════════ REEL ══════════════════════════ -->
-<div class="reel" id="reel">
-
+<!-- ══════════════ REEL ══════════════ -->
+<div class="reel">
   <div class="grain"></div>
 
   <!-- Progress bar -->
@@ -523,126 +488,83 @@ body {
     <div class="seg"><div class="seg-fill" id="f5"></div></div>
   </div>
 
-  <!-- ── SLIDE 0 · HOOK ── -->
+  <!-- SLIDE 0 · HOOK -->
   <div class="slide" id="s0">
     <div class="bg-num">01</div>
     <div class="rise label" style="margin-bottom:22px;transition-delay:0.08s">TideMerge AI</div>
-    <div id="hookText"><span id="hookInner"></span><span id="hookCursor"></span></div>
+    <div id="hookWrap"><span id="hookInner"></span><span id="hookCursor"></span></div>
     <div class="rise rule" style="margin-top:24px;transition-delay:1.35s"></div>
     <div class="rise body-serif" style="max-width:190px;transition-delay:1.55s">Your business shouldn't sleep.</div>
     <div class="brand-bar">
-      <div class="bdot"></div>
-      <div class="wordmark">TideMerge</div>
-      <div class="bdot"></div>
+      <div class="bdot"></div><div class="wordmark">TideMerge</div><div class="bdot"></div>
     </div>
   </div>
 
-  <!-- ── SLIDE 1 · PROBLEM ── -->
+  <!-- SLIDE 1 · PROBLEM -->
   <div class="slide" id="s1">
     <div class="bg-num">02</div>
     <div class="rise label" style="margin-bottom:18px;transition-delay:0.08s">Sound familiar?</div>
     <div class="rise serif-hero" style="transition-delay:0.22s">A call comes in<br>at 9 PM.</div>
     <div class="rise sans-hero" style="margin-top:18px;transition-delay:0.4s">You miss it.</div>
     <div class="rise rule" style="transition-delay:0.58s"></div>
-    <div class="rise body-serif" style="max-width:205px;transition-delay:0.74s">
-      4 in 5 callers who reach voicemail never call back.
-    </div>
+    <div class="rise body-serif" style="max-width:205px;transition-delay:0.74s">4 in 5 callers who reach voicemail never call back.</div>
     <div class="brand-bar">
-      <div class="bdot"></div>
-      <div class="wordmark">TideMerge</div>
-      <div class="bdot"></div>
+      <div class="bdot"></div><div class="wordmark">TideMerge</div><div class="bdot"></div>
     </div>
   </div>
 
-  <!-- ── SLIDE 2 · REVEAL ── -->
+  <!-- SLIDE 2 · REVEAL -->
   <div class="slide" id="s2">
     <div class="bg-num">03</div>
     <div class="rise" style="margin-bottom:26px;transition-delay:0.08s">
-      <div class="live-badge">
-        <div class="pulse-dot"></div>
-        <span>Live call answered</span>
-      </div>
+      <div class="live-badge"><div class="pulse-dot"></div><span>Live call answered</span></div>
     </div>
     <div class="rise serif-hero" style="transition-delay:0.26s">Meet your<br>AI Receptionist.</div>
     <div class="rise rule" style="transition-delay:0.46s"></div>
     <div class="rise sans-hero" style="font-size:clamp(18px,5.2vw,28px);letter-spacing:0.14em;transition-delay:0.62s">TIDEMERGE</div>
-    <div class="rise body-serif" style="margin-top:12px;transition-delay:0.82s;max-width:196px">
-      Sounds exactly like you.<br>Never misses a call.
-    </div>
+    <div class="rise body-serif" style="margin-top:12px;transition-delay:0.82s;max-width:196px">Sounds exactly like you.<br>Never misses a call.</div>
     <div class="brand-bar">
-      <div class="bdot"></div>
-      <div class="wordmark">TideMerge</div>
-      <div class="bdot"></div>
+      <div class="bdot"></div><div class="wordmark">TideMerge</div><div class="bdot"></div>
     </div>
   </div>
 
-  <!-- ── SLIDE 3 · HOW IT WORKS ── -->
+  <!-- SLIDE 3 · HOW IT WORKS -->
   <div class="slide" id="s3">
     <div class="bg-num">04</div>
     <div class="rise label" style="margin-bottom:10px;transition-delay:0.08s">How it works</div>
-    <div class="rise serif-hero" style="font-size:clamp(22px,6.2vw,34px);margin-bottom:22px;transition-delay:0.22s">
-      Three things.<br>That's it.
-    </div>
+    <div class="rise serif-hero" style="font-size:clamp(22px,6.2vw,34px);margin-bottom:22px;transition-delay:0.22s">Three things.<br>That's it.</div>
     <ul class="bullets">
-      <li>
-        <span class="bi">→</span>
-        <div>
-          <div class="bt">Your voice.</div>
-          <div class="bs">Cloned. Trained. Indistinguishable.</div>
-        </div>
-      </li>
-      <li>
-        <span class="bi">→</span>
-        <div>
-          <div class="bt">Your services.</div>
-          <div class="bs">Books, qualifies, answers everything.</div>
-        </div>
-      </li>
-      <li>
-        <span class="bi">→</span>
-        <div>
-          <div class="bt">24 / 7 / 365.</div>
-          <div class="bs">No sick days. No missed calls. Ever.</div>
-        </div>
-      </li>
+      <li><span class="bi">→</span><div><div class="bt">Your voice.</div><div class="bs">Cloned. Trained. Indistinguishable.</div></div></li>
+      <li><span class="bi">→</span><div><div class="bt">Your services.</div><div class="bs">Books, qualifies, answers everything.</div></div></li>
+      <li><span class="bi">→</span><div><div class="bt">24 / 7 / 365.</div><div class="bs">No sick days. No missed calls. Ever.</div></div></li>
     </ul>
     <div class="brand-bar">
-      <div class="bdot"></div>
-      <div class="wordmark">TideMerge</div>
-      <div class="bdot"></div>
+      <div class="bdot"></div><div class="wordmark">TideMerge</div><div class="bdot"></div>
     </div>
   </div>
 
-  <!-- ── SLIDE 4 · PROOF ── -->
+  <!-- SLIDE 4 · PROOF -->
   <div class="slide" id="s4">
     <div class="bg-num">05</div>
     <div class="rise label" style="margin-bottom:18px;transition-delay:0.08s">The numbers</div>
     <div class="rise stat" style="transition-delay:0.24s">
-      <div class="stat-num">0%</div>
-      <div class="stat-lbl">missed calls.</div>
+      <div class="stat-num">0%</div><div class="stat-lbl">missed calls.</div>
     </div>
     <div class="rise rule" style="transition-delay:0.44s"></div>
     <div class="rise stat" style="transition-delay:0.6s">
-      <div class="stat2-num">5 days</div>
-      <div class="stat-lbl" style="font-size:clamp(15px,4.2vw,20px)">to go live.</div>
+      <div class="stat2-num">5 days</div><div class="stat-lbl" style="font-size:clamp(15px,4.2vw,20px)">to go live.</div>
     </div>
-    <div class="rise body-serif" style="margin-top:12px;max-width:205px;transition-delay:0.84s">
-      From onboarding to your first live call — five days flat.
-    </div>
+    <div class="rise body-serif" style="margin-top:12px;max-width:205px;transition-delay:0.84s">From onboarding to your first live call — five days flat.</div>
     <div class="brand-bar">
-      <div class="bdot"></div>
-      <div class="wordmark">TideMerge</div>
-      <div class="bdot"></div>
+      <div class="bdot"></div><div class="wordmark">TideMerge</div><div class="bdot"></div>
     </div>
   </div>
 
-  <!-- ── SLIDE 5 · CTA ── -->
+  <!-- SLIDE 5 · CTA -->
   <div class="slide" id="s5">
     <div class="bg-num">06</div>
     <div class="rise label" style="margin-bottom:20px;transition-delay:0.08s">Your next step</div>
-    <div class="rise serif-hero" style="font-size:clamp(28px,8.2vw,44px);transition-delay:0.24s">
-      Hear what yours<br>sounds like.
-    </div>
+    <div class="rise serif-hero" style="font-size:clamp(28px,8.2vw,44px);transition-delay:0.24s">Hear what yours<br>sounds like.</div>
     <div class="rise rule" style="transition-delay:0.44s"></div>
     <div class="rise" style="text-align:center;transition-delay:0.62s">
       <div class="arrow-lbl">For free →</div>
@@ -656,12 +578,10 @@ body {
     </div>
   </div>
 
-  <!-- Replay -->
   <button id="replayBtn">↺ Replay</button>
+</div>
 
-</div><!-- /reel -->
-
-<!-- ══════════════════════════ CAPTION ══════════════════════════ -->
+<!-- ══════════════ CAPTION ══════════════ -->
 <div class="caption-section">
   <div class="caption-card">
     <div class="caption-header">
@@ -687,35 +607,29 @@ Link in bio → hear what yours sounds like.
 </div>
 
 <script>
-// ─── CONFIG ─────────────────────────────────────────────────────
 const HOLD_MS      = 2800;
 const TOTAL_SLIDES = 6;
 
-// ─── STATE ──────────────────────────────────────────────────────
 let current    = -1;
 let slideTimer = null;
 let typingTO   = null;
 
-// ─── ELEMENTS ───────────────────────────────────────────────────
 const slides    = Array.from({length: TOTAL_SLIDES}, (_, i) => document.getElementById(`s${i}`));
 const fills     = Array.from({length: TOTAL_SLIDES}, (_, i) => document.getElementById(`f${i}`));
 const replayBtn = document.getElementById('replayBtn');
-const hookEl    = document.getElementById('hookText');
 const hookInner = document.getElementById('hookInner');
 const hookCursor = document.getElementById('hookCursor');
 
-// ─── TYPING ANIMATION ───────────────────────────────────────────
+// ── Typing ──────────────────────────────────────────────────────
 const HOOK_FULL = "What if your business never slept?";
 
 function startTyping() {
-  hookEl.classList.add('visible');
   hookInner.textContent = '';
-  hookCursor.classList.remove('gone');
+  hookCursor.style.display = 'inline-block';
   let i = 0;
-
   function tick() {
     if (i >= HOOK_FULL.length) {
-      setTimeout(() => hookCursor.classList.add('gone'), 600);
+      setTimeout(() => { hookCursor.style.display = 'none'; }, 700);
       return;
     }
     hookInner.textContent += HOOK_FULL[i++];
@@ -726,44 +640,40 @@ function startTyping() {
 
 function resetTyping() {
   clearTimeout(typingTO);
-  hookEl.classList.remove('visible');
   hookInner.textContent = '';
-  hookCursor.classList.remove('gone');
+  hookCursor.style.display = 'inline-block';
 }
 
-// ─── PROGRESS FILL ──────────────────────────────────────────────
-function startFill(index) {
-  const f = fills[index];
+// ── Progress fill ────────────────────────────────────────────────
+function startFill(i) {
+  const f = fills[i];
   f.style.transition = 'none';
   f.style.width = '0%';
-  f.getBoundingClientRect(); // force reflow
+  f.getBoundingClientRect();
   f.style.transition = `width ${HOLD_MS}ms linear`;
   f.style.width = '100%';
 }
 
-function lockFill(index) {
-  const f = fills[index];
-  f.style.transition = 'width 0.12s ease';
-  f.style.width = '100%';
+function lockFill(i) {
+  fills[i].style.transition = 'width 0.12s ease';
+  fills[i].style.width = '100%';
 }
 
-function resetFill(index) {
-  const f = fills[index];
-  f.style.transition = 'none';
-  f.style.width = '0%';
+function resetFill(i) {
+  fills[i].style.transition = 'none';
+  fills[i].style.width = '0%';
 }
 
-// ─── SLIDE TRANSITION ───────────────────────────────────────────
+// ── Navigation ───────────────────────────────────────────────────
 function goTo(index) {
   clearTimeout(slideTimer);
 
-  // Deactivate previous
   if (current >= 0 && current < TOTAL_SLIDES) {
     slides[current].classList.remove('active');
+    slides[current].classList.add('inactive');
     lockFill(current);
   }
 
-  // End of reel
   if (index >= TOTAL_SLIDES) {
     current = TOTAL_SLIDES;
     replayBtn.classList.add('show');
@@ -772,38 +682,34 @@ function goTo(index) {
 
   replayBtn.classList.remove('show');
   current = index;
+  slides[index].classList.remove('inactive');
   slides[index].classList.add('active');
   startFill(index);
 
-  if (index === 0) {
-    setTimeout(startTyping, 200);
-  }
+  if (index === 0) setTimeout(startTyping, 200);
 
   slideTimer = setTimeout(() => goTo(index + 1), HOLD_MS);
 }
 
-// ─── REPLAY ─────────────────────────────────────────────────────
+// ── Replay ───────────────────────────────────────────────────────
 replayBtn.addEventListener('click', () => {
   clearTimeout(slideTimer);
   replayBtn.classList.remove('show');
-  slides.forEach(s => s.classList.remove('active'));
+  slides.forEach(s => { s.classList.remove('active'); s.classList.add('inactive'); });
   fills.forEach((_, i) => resetFill(i));
   resetTyping();
   current = -1;
   setTimeout(() => goTo(0), 80);
 });
 
-// ─── COPY CAPTION ───────────────────────────────────────────────
+// ── Copy ─────────────────────────────────────────────────────────
 document.getElementById('copyBtn').addEventListener('click', function () {
   const text = document.getElementById('captionText').value;
-  const btn  = this;
-
   const done = () => {
-    btn.textContent = 'Copied ✓';
-    btn.classList.add('ok');
-    setTimeout(() => { btn.textContent = 'Copy Caption'; btn.classList.remove('ok'); }, 2200);
+    this.textContent = 'Copied ✓';
+    this.classList.add('ok');
+    setTimeout(() => { this.textContent = 'Copy Caption'; this.classList.remove('ok'); }, 2200);
   };
-
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(done).catch(() => {
       document.getElementById('captionText').select();
@@ -817,8 +723,10 @@ document.getElementById('copyBtn').addEventListener('click', function () {
   }
 });
 
-// ─── KICKOFF ────────────────────────────────────────────────────
-setTimeout(() => goTo(0), 350);
+// ── Start ────────────────────────────────────────────────────────
+// Remove the CSS-default opacity:1 from s0, then drive it through JS
+document.getElementById('s0').style.opacity = '';
+goTo(0);
 </script>
 </body>
 </html>
