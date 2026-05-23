@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>TideMerge Carousel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Syne:wght@400;700;800&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#f5f1ea;
+  --ink:#0a0a0a;
+  --blue:#2b7fff;
+  --muted:rgba(10,10,10,.38);
+  --sf:'Instrument Serif',Georgia,serif;
+  --ss:'Syne','Arial Black',Arial,sans-serif;
+}
+html,body{height:100%;overflow:hidden;background:#111}
+
+/* ── TRACK ── */
+.track{
+  display:flex;
+  width:100vw;
+  height:100svh;
+  overflow-x:scroll;
+  overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.track::-webkit-scrollbar{display:none}
+
+/* ── SLIDES ── */
+.s{
+  min-width:100vw;
+  height:100svh;
+  scroll-snap-align:start;
+  flex-shrink:0;
+  position:relative;
+  background:var(--cream);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:56px 36px 52px;
+  overflow:hidden;
+}
+
+/* grid texture */
+.s::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(10,10,10,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(10,10,10,.025) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* grain */
+.s::after{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:.11;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px 200px;mix-blend-mode:multiply;
+}
+
+/* big bg number */
+.bg-n{
+  position:absolute;bottom:-18px;right:6px;
+  font-family:var(--ss);font-weight:800;
+  font-size:min(28vw,160px);
+  color:rgba(10,10,10,.032);
+  line-height:1;pointer-events:none;z-index:0;
+}
+
+/* content above texture */
+.s>*{position:relative;z-index:1}
+
+/* brand bar */
+.brand{
+  position:absolute;bottom:16px;left:0;right:0;
+  display:flex;align-items:center;justify-content:center;gap:7px;z-index:2;
+}
+.bdot{width:3px;height:3px;background:var(--blue);border-radius:50%;opacity:.45}
+.wm{font-family:var(--ss);font-weight:800;font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:rgba(10,10,10,.18)}
+
+/* ── TYPE ── */
+.lbl{font-family:var(--ss);font-weight:800;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--blue);text-align:center;margin-bottom:18px}
+.sh{font-family:var(--sf);font-style:italic;font-size:min(11vw,52px);line-height:1.12;color:var(--ink);text-align:center}
+.nh{font-family:var(--ss);font-weight:800;font-size:min(10.5vw,50px);line-height:1;color:var(--ink);text-align:center;text-transform:uppercase;letter-spacing:-.01em}
+.bs{font-family:var(--sf);font-style:italic;font-size:min(4vw,17px);line-height:1.65;color:var(--muted);text-align:center}
+.rule{width:34px;height:2.5px;background:var(--blue);border-radius:2px;margin:18px auto;flex-shrink:0}
+
+/* ── SLIDE 2: LIVE ── */
+.live{display:inline-flex;align-items:center;gap:8px;font-family:var(--ss);font-weight:800;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:24px}
+.pdot{width:9px;height:9px;border-radius:50%;background:var(--blue);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(43,127,255,.55)}60%{box-shadow:0 0 0 9px rgba(43,127,255,0)}100%{box-shadow:0 0 0 0 rgba(43,127,255,0)}}
+
+/* ── SLIDE 3: BULLETS ── */
+.bullets{list-style:none;display:flex;flex-direction:column;gap:14px;width:100%;max-width:270px;margin-top:6px}
+.bullets li{display:flex;align-items:flex-start;gap:10px}
+.bi{color:var(--blue);font-family:var(--ss);font-weight:800;font-size:15px;line-height:1.4;flex-shrink:0;margin-top:1px}
+.bt{font-family:var(--ss);font-weight:800;font-size:min(4vw,17px);color:var(--ink);line-height:1.3}
+.bsub{font-family:var(--sf);font-style:italic;font-size:min(3.2vw,13px);color:var(--muted);margin-top:2px}
+
+/* ── SLIDE 4: PROOF ── */
+.stat{text-align:center}
+.sn{font-family:var(--ss);font-weight:800;font-size:min(22vw,108px);line-height:.92;color:var(--blue);letter-spacing:-.025em}
+.sn2{font-family:var(--ss);font-weight:800;font-size:min(15vw,74px);line-height:.92;color:var(--blue);letter-spacing:-.025em}
+.sl{font-family:var(--sf);font-style:italic;font-size:min(5.5vw,28px);color:var(--ink);margin-top:5px}
+
+/* ── SLIDE 5: CTA ── */
+.cta{font-family:var(--ss);font-weight:800;font-size:min(6vw,28px);color:var(--ink);display:inline-block;position:relative;padding-bottom:4px}
+.cta::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--blue);border-radius:2px}
+.handle{font-family:var(--ss);font-weight:400;font-size:min(3.2vw,13px);letter-spacing:.07em;color:var(--muted);text-align:center;margin-top:20px}
+.arr{font-family:var(--ss);font-weight:800;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(10,10,10,.28);margin-bottom:10px;text-align:center}
+
+/* ── SLIDE 6: CAPTION ── */
+.cap-slide{background:#0f0f0f;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:52px 28px 32px}
+.cap-slide::before,.cap-slide::after{display:none}
+.cap-inner{flex:1;display:flex;flex-direction:column}
+.cap-label{font-family:var(--ss);font-weight:800;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:14px}
+.cap-text{flex:1;color:rgba(255,255,255,.75);font-family:Georgia,serif;font-size:13px;line-height:1.8;white-space:pre-wrap;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.copy-btn{margin-top:18px;background:var(--blue);color:#fff;border:none;border-radius:100px;padding:13px 0;font-family:var(--ss);font-weight:800;font-size:10px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;width:100%;transition:background .18s}
+.copy-btn.ok{background:#22c55e}
+
+/* ── DOTS ── */
+.dots{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:99;pointer-events:none}
+.dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.3)}
+</style>
+</head>
+<body>
+
+<div class="track" id="track">
+
+  <!-- 1 · HOOK -->
+  <div class="s">
+    <div class="bg-n">01</div>
+    <div class="lbl">TideMerge AI</div>
+    <div class="sh">What if your<br>business never<br>slept?</div>
+    <div class="rule"></div>
+    <div class="bs" style="max-width:200px">Your business shouldn't sleep.</div>
+    <div class="brand"><div class="bdot"></div><div class="wm">TideMerge</div><div class="bdot"></div></div>
+  </div>
+
+  <!-- 2 · PROBLEM -->
+  <div class="s">
+    <div class="bg-n">02</div>
+    <div class="lbl">Sound familiar?</div>
+    <div class="sh">A call comes in<br>at 9 PM.</div>
+    <div class="nh" style="margin-top:16px">You miss it.</div>
+    <div class="rule"></div>
+    <div class="bs" style="max-width:215px">4 in 5 callers who reach voicemail never call back.</div>
+    <div class="brand"><div class="bdot"></div><div class="wm">TideMerge</div><div class="bdot"></div></div>
+  </div>
+
+  <!-- 3 · REVEAL -->
+  <div class="s">
+    <div class="bg-n">03</div>
+    <div class="live"><div class="pdot"></div><span>Live call answered</span></div>
+    <div class="sh">Meet your<br>AI Receptionist.</div>
+    <div class="rule"></div>
+    <div class="nh" style="font-size:min(6.5vw,30px);letter-spacing:.14em">TIDEMERGE</div>
+    <div class="bs" style="margin-top:12px;max-width:200px">Sounds exactly like you.<br>Never misses a call.</div>
+    <div class="brand"><div class="bdot"></div><div class="wm">TideMerge</div><div class="bdot"></div></div>
+  </div>
+
+  <!-- 4 · HOW IT WORKS -->
+  <div class="s">
+    <div class="bg-n">04</div>
+    <div class="lbl">How it works</div>
+    <div class="sh" style="font-size:min(7.5vw,36px);margin-bottom:24px">Three things.<br>That's it.</div>
+    <ul class="bullets">
+      <li><span class="bi">→</span><div><div class="bt">Your voice.</div><div class="bsub">Cloned. Trained. Indistinguishable.</div></div></li>
+      <li><span class="bi">→</span><div><div class="bt">Your services.</div><div class="bsub">Books, qualifies, answers everything.</div></div></li>
+      <li><span class="bi">→</span><div><div class="bt">24 / 7 / 365.</div><div class="bsub">No sick days. No missed calls. Ever.</div></div></li>
+    </ul>
+    <div class="brand"><div class="bdot"></div><div class="wm">TideMerge</div><div class="bdot"></div></div>
+  </div>
+
+  <!-- 5 · PROOF -->
+  <div class="s">
+    <div class="bg-n">05</div>
+    <div class="lbl">The numbers</div>
+    <div class="stat"><div class="sn">0%</div><div class="sl">missed calls.</div></div>
+    <div class="rule"></div>
+    <div class="stat"><div class="sn2">5 days</div><div class="sl" style="font-size:min(4.5vw,22px)">to go live.</div></div>
+    <div class="bs" style="margin-top:14px;max-width:210px">From onboarding to your first live call — five days flat.</div>
+    <div class="brand"><div class="bdot"></div><div class="wm">TideMerge</div><div class="bdot"></div></div>
+  </div>
+
+  <!-- 6 · CTA -->
+  <div class="s">
+    <div class="bg-n">06</div>
+    <div class="lbl">Your next step</div>
+    <div class="sh" style="font-size:min(10vw,48px)">Hear what yours<br>sounds like.</div>
+    <div class="rule"></div>
+    <div style="text-align:center">
+      <div class="arr">For free →</div>
+      <div class="cta">tidemerge.com</div>
+    </div>
+    <div class="handle">@tidemergeai</div>
+    <div class="brand" style="bottom:42px">
+      <div style="width:22px;height:1px;background:var(--blue);opacity:.4"></div>
+      <div class="wm" style="color:rgba(10,10,10,.3)">tidemerge.com</div>
+      <div style="width:22px;height:1px;background:var(--blue);opacity:.4"></div>
+    </div>
+  </div>
+
+  <!-- 7 · CAPTION -->
+  <div class="s cap-slide">
+    <div class="cap-inner">
+      <div class="cap-label">Caption — Copy &amp; Paste</div>
+      <div class="cap-text">Your phone rang at 9 PM. You were at dinner. It went to voicemail.
+
+That lead is gone.
+
+Most businesses lose 30–50% of inbound leads to missed calls, slow callbacks, and after-hours gaps — not because they don't care, but because they're human.
+
+TideMerge built the fix. An AI receptionist that answers every call, books every appointment, and sounds exactly like you. 24/7. 365.
+
+No scripts. No offshore teams. Just your voice, trained on your business, running while you sleep.
+
+Live in 5 days. Zero missed calls from day one.
+
+Link in bio → hear what yours sounds like.
+
+#AIreceptionist #businessautomation #AItechnology #callautomation #smallbusiness #entrepreneurship #AIagent #leadgeneration #businessgrowth #tidemerge</div>
+      <button class="copy-btn" id="copyBtn">Copy Caption</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Dot indicators -->
+<div class="dots" id="dots">
+  <div class="dot" id="d0"></div>
+  <div class="dot" id="d1"></div>
+  <div class="dot" id="d2"></div>
+  <div class="dot" id="d3"></div>
+  <div class="dot" id="d4"></div>
+  <div class="dot" id="d5"></div>
+  <div class="dot" id="d6"></div>
+</div>
+
+<script>
+// Dot tracking
+var track = document.getElementById('track');
+var dots  = Array.from({length:7}, function(_,i){ return document.getElementById('d'+i); });
+
+function updateDots() {
+  var idx = Math.round(track.scrollLeft / window.innerWidth);
+  dots.forEach(function(d,i){
+    d.style.background = i === idx ? '#fff' : 'rgba(255,255,255,.3)';
+    d.style.transform  = i === idx ? 'scale(1.4)' : 'scale(1)';
+    d.style.transition = 'all .2s';
+  });
+}
+
+track.addEventListener('scroll', updateDots, {passive:true});
+updateDots();
+
+// Copy
+document.getElementById('copyBtn').addEventListener('click', function(){
+  var text = document.querySelector('.cap-text').textContent.trim();
+  var btn = this;
+  function ok(){ btn.textContent='Copied ✓'; btn.classList.add('ok'); setTimeout(function(){ btn.textContent='Copy Caption'; btn.classList.remove('ok'); }, 2200); }
+  if(navigator.clipboard){ navigator.clipboard.writeText(text).then(ok).catch(function(){ ok(); }); } else { ok(); }
+});
+</script>
+</body>
+</html>
