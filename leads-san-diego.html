@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TideMerge — San Diego Call Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #f5f1ea;
+  --ink:   #0a0a0a;
+  --blue:  #2b7fff;
+  --muted: rgba(10,10,10,0.36);
+  --line:  rgba(10,10,10,0.12);
+  --hot:   #d94a2b;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Syne', system-ui, sans-serif;
+  padding: 30px 18px 80px;
+  line-height: 1.5;
+  background-image:
+    linear-gradient(rgba(10,10,10,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,10,10,0.022) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+.wrap { max-width: 720px; margin: 0 auto; }
+
+/* ── HEADER ── */
+.label {
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
+h1 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400; font-size: clamp(34px, 9vw, 54px);
+  line-height: 1.02; letter-spacing: -0.01em; margin: 10px 0 6px;
+}
+h1 em { font-style: italic; color: var(--blue); }
+.sub {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic; font-size: 18px; color: var(--muted); margin-bottom: 22px;
+}
+.rule { height: 1px; background: var(--blue); opacity: 0.35; margin: 22px 0; }
+
+/* ── SCOREBOARD ── */
+.board {
+  display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;
+}
+.tile {
+  flex: 1 1 90px; background: #fff; border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px 14px;
+}
+.tile-num { font-size: 26px; font-weight: 800; line-height: 1; }
+.tile-lbl {
+  font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); margin-top: 5px; font-weight: 700;
+}
+.tile.win .tile-num { color: var(--blue); }
+
+/* ── NOTICE ── */
+.notice {
+  background: rgba(217,74,43,0.07);
+  border-left: 2px solid var(--hot);
+  padding: 12px 14px; border-radius: 0 8px 8px 0;
+  font-size: 13px; margin: 18px 0 6px;
+}
+.notice b { font-weight: 800; }
+
+/* ── SECTION ── */
+h2 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400; font-size: 30px; margin: 38px 0 4px; letter-spacing: -0.01em;
+}
+h2 .n {
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800;
+  color: var(--blue); letter-spacing: 0.18em; display: block; margin-bottom: 4px;
+}
+
+/* ── LEAD CARD ── */
+.lead {
+  background: #fff; border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px 16px 14px; margin-bottom: 12px;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+.lead[data-done="dead"] { opacity: 0.4; }
+.lead[data-done="demo"] { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
+
+.lead-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 3px; }
+.rank {
+  font-size: 11px; font-weight: 800; color: #fff; background: var(--ink);
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; margin-top: 2px;
+}
+.lead[data-tier="a"] .rank { background: var(--blue); }
+.firm { font-weight: 800; font-size: 16.5px; line-height: 1.25; }
+.atty { font-size: 13px; color: var(--muted); margin-top: 1px; }
+
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 9px 0 11px 34px; }
+.tag {
+  font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  font-weight: 700; padding: 3px 8px; border-radius: 20px;
+  background: rgba(10,10,10,0.05); color: rgba(10,10,10,0.55);
+}
+.tag.blue { background: rgba(43,127,255,0.11); color: var(--blue); }
+.tag.hot  { background: rgba(217,74,43,0.11); color: var(--hot); }
+
+.meta { margin-left: 34px; }
+.tel {
+  font-family: 'Syne', sans-serif; font-size: 21px; font-weight: 800;
+  color: var(--ink); text-decoration: none; letter-spacing: -0.01em;
+  display: inline-block; border-bottom: 2px solid var(--blue); padding-bottom: 1px;
+}
+.tel:hover { color: var(--blue); }
+.addr { font-size: 12.5px; color: var(--muted); margin-top: 7px; }
+.hours { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.hours b { color: var(--hot); font-weight: 700; }
+
+.why {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 15.5px; line-height: 1.45; margin-top: 11px;
+  padding-top: 11px; border-top: 1px solid var(--line);
+}
+.why span {
+  font-family: 'Syne', sans-serif; font-size: 9.5px; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue);
+  display: block; margin-bottom: 4px;
+}
+
+/* ── STATUS BUTTONS ── */
+.status { display: flex; gap: 6px; margin: 12px 0 0 34px; flex-wrap: wrap; }
+.status button {
+  font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 6px 10px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  transition: all 0.15s;
+}
+.status button:hover { border-color: var(--ink); color: var(--ink); }
+.status button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.status button[data-s="demo"].on { background: var(--blue); border-color: var(--blue); }
+
+/* ── SCRIPT ── */
+details {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 12px; padding: 0; margin-bottom: 10px;
+}
+summary {
+  padding: 14px 16px; cursor: pointer; font-weight: 800; font-size: 14px;
+  list-style: none; display: flex; justify-content: space-between; align-items: center;
+}
+summary::-webkit-details-marker { display: none; }
+summary::after { content: '+'; font-size: 19px; color: var(--blue); font-weight: 400; }
+details[open] summary::after { content: '–'; }
+.body { padding: 0 16px 16px; font-size: 14px; }
+.body p { margin-bottom: 11px; }
+.say {
+  font-family: 'Instrument Serif', Georgia, serif; font-style: italic;
+  font-size: 16.5px; line-height: 1.5; background: rgba(43,127,255,0.05);
+  border-left: 2px solid var(--blue); padding: 11px 14px;
+  border-radius: 0 8px 8px 0; margin-bottom: 12px;
+}
+.obj { font-weight: 800; font-size: 13px; margin-bottom: 4px; margin-top: 14px; }
+
+footer {
+  margin-top: 46px; padding-top: 20px; border-top: 1px solid var(--line);
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); display: flex; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px; font-weight: 700;
+}
+.reset {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; text-decoration: underline;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="label">TideMerge · Outreach</div>
+  <h1>San Diego.<br><em>Ten calls.</em></h1>
+  <div class="sub">Small &amp; solo law firms. Sorted by how badly they bleed after-hours calls.</div>
+
+  <div class="board">
+    <div class="tile"><div class="tile-num" id="cDialed">0</div><div class="tile-lbl">Dialed</div></div>
+    <div class="tile"><div class="tile-num" id="cLeft">10</div><div class="tile-lbl">Left</div></div>
+    <div class="tile win"><div class="tile-num" id="cDemo">0</div><div class="tile-lbl">Demos</div></div>
+  </div>
+
+  <div class="notice">
+    <b>Verify before you dial.</b> Numbers and hours here come from public directory listings
+    (Yelp, Justia, Avvo, Super Lawyers), not from the firms' own sites — this machine's network
+    policy blocked those. Treat a wrong number as a data error, not a rejection. Two known issues
+    are flagged inline on #6 and #10.
+  </div>
+
+  <div class="rule"></div>
+
+  <!-- ══════════ TIER A ══════════ -->
+  <h2><span class="n">TIER A — CALL THESE FIRST</span>Closed nights &amp; weekends.</h2>
+  <p style="font-size:14px;color:var(--muted);margin:8px 0 18px">
+    Their published hours end at 5 PM. Every arrest, detention, and emergency filing after that
+    is going to voicemail. This is the cleanest version of your pitch.
+  </p>
+
+  <!-- 1 -->
+  <div class="lead" data-id="l1" data-tier="a">
+    <div class="lead-top">
+      <div class="rank">1</div>
+      <div>
+        <div class="firm">Law Office of Joshua R. Bourne</div>
+        <div class="atty">Joshua R. Bourne · solo · 20+ yrs · ex-prosecutor</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Criminal defense</span>
+      <span class="tag">DUI</span>
+      <span class="tag">Domestic violence</span>
+      <span class="tag hot">Closed weekends</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+16192388242">(619) 238-8242</a>
+      <div class="addr">185 F St, Ste 100, San Diego, CA 92101</div>
+      <div class="hours">Mon–Fri 8:30–5 · <b>Sat &amp; Sun closed</b></div>
+      <div class="why"><span>Why this one</span>
+        DUI and domestic violence are Friday-and-Saturday-night practices, and his phone is off
+        Friday and Saturday night. Ask him directly: “Where does a 1 AM DUI arrest call go right now?”
+        There is no good answer, and he knows it.
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <!-- 2 -->
+  <div class="lead" data-id="l2" data-tier="a">
+    <div class="lead-top">
+      <div class="rank">2</div>
+      <div>
+        <div class="firm">Law Office of Andrew K. Nietor</div>
+        <div class="atty">Andrew K. Nietor · solo · est. 2004 · Super Lawyer</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Immigration</span>
+      <span class="tag blue">Criminal defense</span>
+      <span class="tag">Removal defense</span>
+      <span class="tag hot">Closed weekends</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+16197942386">(619) 794-2386</a>
+      <div class="addr">750 B St, Ste 2330, San Diego, CA 92101</div>
+      <div class="hours">Mon–Fri 8–5 · <b>Sat &amp; Sun closed</b></div>
+      <div class="why"><span>Why this one</span>
+        Detention calls don't keep business hours, and a family whose relative just got picked up
+        calls every number on the list until someone human answers. He runs both immigration and
+        criminal — double the after-hours exposure, one phone line.
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <!-- 3 -->
+  <div class="lead" data-id="l3" data-tier="a">
+    <div class="lead-top">
+      <div class="rank">3</div>
+      <div>
+        <div class="firm">Susan V. Perez Law Offices</div>
+        <div class="atty">Susan V. Perez · small firm · licensed 19 yrs</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Immigration</span>
+      <span class="tag">Family petitions</span>
+      <span class="tag">Naturalization</span>
+      <span class="tag hot">Timezone gap</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+16198198648">(619) 819-8648</a>
+      <div class="addr">1901 First Ave, Ste 108/110, San Diego, CA 92101</div>
+      <div class="hours">Offices in San Diego <b>and Manila</b></div>
+      <div class="why"><span>Why this one</span>
+        The strongest angle on the sheet. She has clients in the Philippines — 15 hours ahead, so
+        their business day is her dead of night. An AI receptionist that answers at 3 AM San Diego
+        time isn't a nice-to-have for her, it's the entire Manila workday she's currently sleeping through.
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <!-- 4 -->
+  <div class="lead" data-id="l4" data-tier="a">
+    <div class="lead-top">
+      <div class="rank">4</div>
+      <div>
+        <div class="firm">Law Office of Nadine M. Sayegh</div>
+        <div class="atty">Nadine M. Sayegh · small firm · since 2007 · CLS-F certified</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Family law</span>
+      <span class="tag">Restraining orders</span>
+      <span class="tag">Elder abuse</span>
+      <span class="tag hot">Two offices</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+18588002991">(858) 800-2991</a>
+      <div class="addr">10815 Rancho Bernardo Rd, Ste 205, San Diego, CA 92127<br>
+        Second office: Escondido — <a href="tel:+17602331002" style="color:var(--blue)">(760) 233-1002</a></div>
+      <div class="hours">Mon–Fri 9–5 · <b>Sat &amp; Sun closed</b></div>
+      <div class="why"><span>Why this one</span>
+        Two locations, two numbers, and almost certainly one person deciding which rings.
+        Restraining order calls are emergencies by definition — nobody waits until Monday 9 AM
+        to leave an abusive house. Lead with the coverage-gap-between-offices problem.
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <div class="rule"></div>
+
+  <!-- ══════════ TIER B ══════════ -->
+  <h2><span class="n">TIER B — HARDER, BIGGER</span>Partial coverage already.</h2>
+  <p style="font-size:14px;color:var(--muted);margin:8px 0 18px">
+    These advertise long or 24/7 hours, which means they've already admitted the problem exists
+    and are paying someone to solve it badly. Don't argue that they need coverage — ask what
+    the coverage actually does.
+  </p>
+
+  <!-- 5 -->
+  <div class="lead" data-id="l5" data-tier="b">
+    <div class="lead-top">
+      <div class="rank">5</div>
+      <div>
+        <div class="firm">Law Offices of Anna R. Yum</div>
+        <div class="atty">Anna R. Yum · small firm · former prosecutor · 20+ yrs</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Criminal defense</span>
+      <span class="tag">Advertises 24/7</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+16192334433">(619) 233-4433</a>
+      <div class="addr">1230 Columbia St, Ste 1140, San Diego, CA 92101</div>
+      <div class="hours">Listed as open 24 hours</div>
+      <div class="why"><span>Why this one</span>
+        She advertises 24/7 — so she's already sold on the value, she's just paying an answering
+        service or losing sleep. The question isn't “do you cover nights,” it's
+        “when someone calls at 3 AM, do they get you, or a stranger reading off a form?”
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <!-- 6 -->
+  <div class="lead" data-id="l6" data-tier="b">
+    <div class="lead-top">
+      <div class="rank">6</div>
+      <div>
+        <div class="firm">Law Office of Matthew H. Springmeyer</div>
+        <div class="atty">Matthew H. Springmeyer · solo · ~12 yrs licensed</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Immigration</span>
+      <span class="tag blue">Criminal defense</span>
+      <span class="tag hot">Number conflict</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+16197802716">(619) 780-2716</a>
+      <div class="addr">2305 Historic Decatur Rd, Ste 100, San Diego, CA 92106 · also Chula Vista</div>
+      <div class="hours"><b>Two numbers in the wild:</b> (619) 780-2716 and (619) 237-0384 (Justia).
+        Try the first, fall back to the second.</div>
+      <div class="why"><span>Why this one</span>
+        Immigration plus criminal plus two offices, run by one attorney. Same detention-call
+        pressure as #2. The fact that two different numbers are floating around directories is
+        itself a hook — leads calling him are landing in different places.
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <!-- 7 -->
+  <div class="lead" data-id="l7" data-tier="b">
+    <div class="lead-top">
+      <div class="rank">7</div>
+      <div>
+        <div class="firm">Law Office of Michelle Paul</div>
+        <div class="atty">Michelle Paul · solo · lead trial counsel, state &amp; federal</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Family law</span>
+      <span class="tag">Divorce</span>
+      <span class="tag">DV restraining orders</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+16196243333">(619) 624-3333</a>
+      <div class="addr">2726 Shelter Island Dr, Ste 495, San Diego, CA 92106</div>
+      <div class="hours">Offers free consultations</div>
+      <div class="why"><span>Why this one</span>
+        She gives away free consults, which means her intake volume is high and her
+        conversion rate on those calls is the whole business. Every free-consult call that hits
+        voicemail is a prospect who books with the next firm offering the same thing.
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <!-- 8 -->
+  <div class="lead" data-id="l8" data-tier="b">
+    <div class="lead-top">
+      <div class="rank">8</div>
+      <div>
+        <div class="firm">Law Office of Vikas Bajaj, APC</div>
+        <div class="atty">Vikas Bajaj · small firm · 24 yrs · 30+ practice areas</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Criminal defense</span>
+      <span class="tag">DUI</span>
+      <span class="tag">Federal</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+16195257005">(619) 525-7005</a>
+      <div class="addr">San Diego, CA — street address not confirmed in listings</div>
+      <div class="hours">Hours not published</div>
+      <div class="why"><span>Why this one</span>
+        Advertises 30+ practice areas, which means wildly varied intake calls and a lot of
+        qualifying work before he knows if a caller is worth his time. That's the pitch:
+        it screens and qualifies against his criteria before it ever reaches him.
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <!-- 9 -->
+  <div class="lead" data-id="l9" data-tier="b">
+    <div class="lead-top">
+      <div class="rank">9</div>
+      <div>
+        <div class="firm">George H. Ramos, Jr. &amp; Associates</div>
+        <div class="atty">George H. Ramos, Jr. · small firm · ex-City Attorney · 24 yrs</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Criminal defense</span>
+      <span class="tag">DUI</span>
+      <span class="tag">Advertises 24/7</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+16192311830">(619) 231-1830</a>
+      <div class="addr">427 C St, Ste 306, San Diego, CA 92101</div>
+      <div class="hours">Listed as open 24 hours, 7 days</div>
+      <div class="why"><span>Why this one</span>
+        Same play as #5. He's committed publicly to 24/7 answering, so someone is eating that
+        cost right now — either an answering service he's unhappy with, or his own phone at 2 AM.
+        Ask which, then price against it.
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <!-- 10 -->
+  <div class="lead" data-id="l10" data-tier="b">
+    <div class="lead-top">
+      <div class="rank">10</div>
+      <div>
+        <div class="firm">Law Office of Brian Burkett</div>
+        <div class="atty">Brian Burkett · solo · 20+ yrs family law</div>
+      </div>
+    </div>
+    <div class="tags">
+      <span class="tag blue">Family law</span>
+      <span class="tag">Custody</span>
+      <span class="tag hot">Longest hours</span>
+    </div>
+    <div class="meta">
+      <a class="tel" href="tel:+16192502683">(619) 250-2683</a>
+      <div class="addr">591 Camino De La Reina, Ste 821, San Diego, CA 92108</div>
+      <div class="hours">Listed 8 AM–8 PM, <b>seven days a week</b></div>
+      <div class="why"><span>Why this one</span>
+        Lowest priority, and the reason is instructive: he's already answering 84 hours a week
+        himself. He is the receptionist. The pitch here isn't missed calls, it's
+        “you're working every Sunday to answer a phone” — sell him his weekend back, not his leads.
+      </div>
+    </div>
+    <div class="status"></div>
+  </div>
+
+  <div class="rule"></div>
+
+  <!-- ══════════ SCRIPT ══════════ -->
+  <h2><span class="n">THE SCRIPT</span>Thirty seconds, then shut up.</h2>
+
+  <details open>
+    <summary>Opener</summary>
+    <div class="body">
+      <div class="say">“Hi, is this [Name]? — Quick one, I'll be 30 seconds. I run TideMerge,
+      we build AI receptionists for small firms. Reason I'm calling: if somebody gets arrested
+      Friday at 11 PM and calls your office, what happens to that call right now?”</div>
+      <p><b>Then stop talking.</b> Their answer is the whole pitch. They'll say voicemail,
+      an answering service, or “it forwards to my cell.” Whatever they say, you now know
+      exactly what you're selling against.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>The three answers</summary>
+    <div class="body">
+      <div class="obj">“Goes to voicemail.”</div>
+      <div class="say">“Right — and four out of five people who hit voicemail never call back.
+      They dial the next firm. So that's not a missed call, that's a case that went to your
+      competitor. What's an average case worth to you?”</div>
+      <p>Let them say the number out loud. Then let it sit.</p>
+
+      <div class="obj">“I have an answering service.”</div>
+      <div class="say">“How much are you paying them? And honestly — how many of those messages
+      are worth calling back? Most services take a name and a number. Mine qualifies the caller,
+      asks your intake questions, and books them on your calendar. In your voice.”</div>
+
+      <div class="obj">“It forwards to my cell.”</div>
+      <div class="say">“So you're the receptionist. When you're in a deposition or asleep, does it
+      still ring? And when you do pick up at 11 PM — is that the version of you you want
+      signing a client?”</div>
+    </div>
+  </details>
+
+  <details>
+    <summary>The close — sell the demo, not the subscription</summary>
+    <div class="body">
+      <div class="say">“I'm not going to pitch you over the phone. Let me build one trained on
+      your firm and send you a number. Call it yourself, hear what your intake sounds like at
+      2 AM. Takes me a day. If it's not good, delete my email and we're done.”</div>
+      <p><b>Get the email. That's the win condition.</b> Don't quote a price on call one —
+      you have five days to go live and a free demo, and those are stronger than any number
+      you could say.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Objections you'll actually hear</summary>
+    <div class="body">
+      <div class="obj">“My clients don't want to talk to a robot.”</div>
+      <p>“Agreed — that's exactly why it sounds like you and not a phone tree. Let me build it
+      and you tell me if you can spot it. If you can, I've got nothing to sell you.”</p>
+
+      <div class="obj">“I have ethics rules about intake.”</div>
+      <p>Real concern, don't wave it off. “It doesn't give legal advice and it doesn't take
+      confidential facts — it qualifies, screens conflicts on your criteria, and books.
+      You approve every question it asks. Want to see the script?”</p>
+
+      <div class="obj">“Send me some info.”</div>
+      <p>“I'll do better than a PDF — I'll send you a number to call. Best email?”</p>
+
+      <div class="obj">“How much?”</div>
+      <p>“Depends on call volume and I don't want to quote you blind. Hear it first.”</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Timing &amp; compliance</summary>
+    <div class="body">
+      <p><b>Call 8:00–9:30 AM or after 4:30 PM.</b> Mid-day they're in court and you'll get
+      the gatekeeper.</p>
+      <p><b>Solo attorney numbers are often personal cells.</b> B2B calls are generally exempt
+      from the National DNC Registry, but sole proprietorships sit in a grey area — and
+      attorneys are exactly the people who will call you on it. Scrub the list if you're
+      scaling this past ten.</p>
+      <p><b>California is a two-party consent state.</b> If you record calls for training,
+      disclose it at the top.</p>
+    </div>
+  </details>
+
+  <footer>
+    <div>TideMerge · San Diego · 10 leads</div>
+    <button class="reset" id="resetBtn">Reset sheet</button>
+  </footer>
+
+</div>
+
+<script>
+const STATUSES = [
+  { k: 'dialed',   t: 'Dialed' },
+  { k: 'callback', t: 'Callback' },
+  { k: 'demo',     t: 'Demo booked' },
+  { k: 'dead',     t: 'Dead' }
+];
+const KEY = 'tidemerge-sd-leads';
+
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+const save = s => localStorage.setItem(KEY, JSON.stringify(s));
+
+let state = load();
+const leads = Array.from(document.querySelectorAll('.lead'));
+
+leads.forEach(lead => {
+  const id = lead.dataset.id;
+  const bar = lead.querySelector('.status');
+  STATUSES.forEach(({ k, t }) => {
+    const b = document.createElement('button');
+    b.textContent = t;
+    b.dataset.s = k;
+    b.addEventListener('click', () => {
+      state[id] = state[id] === k ? null : k;
+      save(state);
+      render();
+    });
+    bar.appendChild(b);
+  });
+});
+
+function render() {
+  let dialed = 0, demo = 0;
+  leads.forEach(lead => {
+    const cur = state[lead.dataset.id] || null;
+    lead.dataset.done = cur || '';
+    lead.querySelectorAll('.status button').forEach(b => {
+      b.classList.toggle('on', b.dataset.s === cur);
+    });
+    if (cur) dialed++;
+    if (cur === 'demo') demo++;
+  });
+  document.getElementById('cDialed').textContent = dialed;
+  document.getElementById('cLeft').textContent = leads.length - dialed;
+  document.getElementById('cDemo').textContent = demo;
+}
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm('Clear all call statuses?')) return;
+  state = {};
+  save(state);
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
