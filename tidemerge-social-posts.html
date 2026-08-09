@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TideMerge — Social Post Kit by Niche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── TOKENS · dark-first console ───────────────────────────── */
+:root {
+  --ground:     #0e0f12;
+  --surface:    #16181d;
+  --surface-2:  #1d2027;
+  --line:       rgba(255,255,255,0.085);
+  --line-firm:  rgba(255,255,255,0.16);
+  --ink:        #eceef2;
+  --ink-soft:   #a4abb7;
+  --ink-faint:  #6d747f;
+  --accent:     #2b7fff;
+  --accent-ink: #ffffff;
+  --accent-soft:rgba(43,127,255,0.13);
+  --ok:         #34c759;
+  --warn:       #e0a33a;
+
+  --font-display: 'Syne', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+  --font-serif:   'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-body:    system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --ground:     #f5f1ea;
+    --surface:    #fffdf8;
+    --surface-2:  #ece6da;
+    --line:       rgba(10,10,10,0.10);
+    --line-firm:  rgba(10,10,10,0.22);
+    --ink:        #0a0a0a;
+    --ink-soft:   #565d68;
+    --ink-faint:  #8b929c;
+    --accent:     #1668e3;
+    --accent-ink: #ffffff;
+    --accent-soft:rgba(22,104,227,0.10);
+    --ok:         #1a8f42;
+    --warn:       #9a6a12;
+  }
+}
+
+:root[data-theme="light"] {
+  --ground:     #f5f1ea;
+  --surface:    #fffdf8;
+  --surface-2:  #ece6da;
+  --line:       rgba(10,10,10,0.10);
+  --line-firm:  rgba(10,10,10,0.22);
+  --ink:        #0a0a0a;
+  --ink-soft:   #565d68;
+  --ink-faint:  #8b929c;
+  --accent:     #1668e3;
+  --accent-ink: #ffffff;
+  --accent-soft:rgba(22,104,227,0.10);
+  --ok:         #1a8f42;
+  --warn:       #9a6a12;
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* ── SHELL ─────────────────────────────────────────────────── */
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+/* ── MASTHEAD ──────────────────────────────────────────────── */
+.masthead {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(30px, 5.4vw, 50px);
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+}
+
+.deck {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(17px, 2.4vw, 22px);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 60ch;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.meta {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 5px 10px;
+}
+
+/* ── BODY GRID ─────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 218px minmax(0, 1fr);
+  gap: 44px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .rail { position: static !important; }
+}
+
+/* ── RAIL ──────────────────────────────────────────────────── */
+.rail {
+  position: sticky;
+  top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.rail-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 9px;
+}
+
+.jump {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.jump a {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 5px 9px;
+  border-left: 2px solid var(--line);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.jump a:hover {
+  color: var(--ink);
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.note {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.note p {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.note strong { color: var(--ink); font-weight: 600; }
+
+/* ── POST CARDS ────────────────────────────────────────────── */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.post {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px 26px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  scroll-margin-top: 24px;
+}
+
+.post-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.post-head h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(19px, 3vw, 25px);
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+.miss {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-top: 3px;
+}
+
+.miss span {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-right: 6px;
+}
+
+.tag {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border-radius: 100px;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+
+.hook {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(21px, 3.4vw, 30px);
+  line-height: 1.28;
+  color: var(--ink);
+  text-wrap: balance;
+  padding-left: 15px;
+  border-left: 3px solid var(--accent);
+}
+
+/* ── COPY WELLS ────────────────────────────────────────────── */
+.wells {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.well {
+  background: var(--surface-2);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.well-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px 9px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.well-label {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 9.5px;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+  margin-left: auto;
+}
+
+.count.over { color: var(--warn); }
+
+.copy {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--line-firm);
+  border-radius: 100px;
+  padding: 5px 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.copy:hover {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.copy.done {
+  color: var(--accent-ink);
+  background: var(--ok);
+  border-color: var(--ok);
+}
+
+.body-text {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.72;
+  color: var(--ink);
+  white-space: pre-wrap;
+  padding: 15px 16px;
+  max-width: 68ch;
+}
+
+.body-text.tags {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  word-break: break-word;
+}
+
+.post-foot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.copy-all {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: none;
+  border-radius: 100px;
+  padding: 8px 17px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.copy-all:hover { color: var(--accent-ink); background: var(--accent); }
+.copy-all.done  { color: var(--accent-ink); background: var(--ok); }
+
+/* ── FOOTER ────────────────────────────────────────────────── */
+.colophon {
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <header class="masthead">
+    <div class="eyebrow">TideMerge AI &middot; New Model Launch</div>
+    <h1>Social Post Kit — One Post Per Niche</h1>
+    <p class="deck">Same idea in twelve voices: AI is finally good enough to be genuinely useful, and it matters most in the early stage — when the owner is also the tech, the front desk and the dispatcher.</p>
+    <div class="meta-row">
+      <span class="meta">12 verticals</span>
+      <span class="meta">3 formats each</span>
+      <span class="meta">IG &middot; FB &middot; X &middot; LinkedIn</span>
+      <span class="meta">tidemerge.com</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <aside class="rail">
+      <nav>
+        <div class="rail-title">Verticals</div>
+        <div class="jump" id="jump"></div>
+      </nav>
+      <div class="note">
+        <div class="rail-title" style="margin:0">Before you post</div>
+        <p><strong>Swap the CTA</strong> for whatever the new model launch actually offers — every post ends on <em>tidemerge.com</em>.</p>
+        <p><strong>Check the claims.</strong> "Live in 5 days" and the voice-clone promise carry over from the reel. Verify they still hold for the new model.</p>
+        <p><strong>Long form</strong> runs 700–1000 characters — sized for Instagram and Facebook. The short cut fits X and Threads.</p>
+      </div>
+    </aside>
+
+    <main class="stack" id="stack"></main>
+
+  </div>
+
+  <footer class="colophon">
+    <span>TideMerge &middot; AI Receptionist</span>
+    <span>@tidemergeai</span>
+    <span>tidemerge.com</span>
+  </footer>
+
+</div>
+
+<script>
+// ─── POST DATA ──────────────────────────────────────────────────
+const POSTS = [
+{
+  id: 'hvac',
+  niche: 'HVAC & Plumbing',
+  tag: 'Emergency demand',
+  miss: 'After hours, and mid-job with your hands full',
+  hook: 'The burst pipe doesn’t wait for business hours.',
+  long: `It’s 9:40 PM. A pipe lets go under somebody’s kitchen sink.
+
+They search "emergency plumber near me" and start working down the list. Whoever picks up gets the job. Everyone else gets a voicemail box nobody will ever check.
+
+Here’s what actually changed: AI got good. Not novelty-chatbot good — good enough to hold a real conversation with a homeowner who is standing in two inches of water.
+
+And it matters most early. In year one you are the tech, the dispatcher, the estimator and the front desk. Something has to slip, and it is almost always the phone.
+
+TideMerge answers in your voice. It knows your service area, your after-hours rate, your emergency policy. It qualifies the call, books the slot, and texts you the details before you’ve wiped your hands off.
+
+You’re not ready to hire a receptionist. You’re ready to stop losing the 9 PM calls.
+
+Live in 5 days → tidemerge.com`,
+  short: `The burst pipe doesn’t check your business hours. Whoever answers first gets the job — everyone else gets a voicemail nobody checks. TideMerge answers in your voice, qualifies the call, books the slot. 24/7, live in 5 days.`,
+  tags: '#plumber #hvac #hvaclife #plumbinglife #homeservices #trades #contractorlife #AIreceptionist #missedcalls #smallbusiness #tidemerge'
+},
+{
+  id: 'roofing',
+  niche: 'Roofing & Exteriors',
+  tag: 'Storm-driven spikes',
+  miss: 'The 48 hours after a storm, while you’re on a roof',
+  hook: 'Storm season doesn’t send a calendar invite.',
+  long: `Hail comes through on a Tuesday afternoon. By Wednesday morning every homeowner in that zip code is calling roofers.
+
+You get a week’s worth of calls in two days — while you’re on a roof, in a truck, or up a ladder with your phone sitting in the console.
+
+That is the exact moment a small roofing company either doubles or misses its season.
+
+AI is finally good enough to carry that spike for you. TideMerge answers every one of those calls in your voice, captures the address, the damage, the carrier and whether they’ve filed a claim yet — then books the inspection.
+
+Early on, this is the difference between growing and just surviving storm season. No dispatcher on payroll. No leads sitting in a voicemail box until Friday.
+
+Live in 5 days → tidemerge.com`,
+  short: `Hail hits Tuesday. By Wednesday every homeowner in the zip is calling roofers — while you’re on a roof. TideMerge answers all of it in your voice, captures the claim details, books the inspection. Live in 5 days.`,
+  tags: '#roofing #roofingcontractor #stormdamage #exteriors #siding #gutters #contractorlife #AIreceptionist #leadgeneration #tidemerge'
+},
+{
+  id: 'dental',
+  niche: 'Dental Practices',
+  tag: 'One-person front desk',
+  miss: 'While your front desk is with a patient',
+  hook: 'Hold music is where new patients go to die.',
+  long: `A new patient calls at 2:15. Your front desk is checking someone out, the hygienist needs a chart, and the phone rings four times before it drops to hold.
+
+They hang up at forty seconds and call the practice down the road. You will never know it happened.
+
+Newer practices feel this hardest — one person at the desk doing insurance verification, checkout, scheduling and the phone, all at the same time.
+
+AI has quietly gotten good enough to take that off them. TideMerge answers in a voice that matches your office, handles "do you take my insurance," quotes new-patient exam pricing, and books straight into the open chair.
+
+Your front desk stops apologizing to the patient standing in front of them. Nobody sits on hold.
+
+Hear what yours sounds like → tidemerge.com`,
+  short: `New patient calls at 2:15. Front desk is mid-checkout. Four rings, then hold, then they book with the practice down the road — and you never find out. TideMerge answers the overflow in your office’s voice and fills the chair.`,
+  tags: '#dentalpractice #dentist #dentalmarketing #practicegrowth #newpatients #frontdesk #dentalofficelife #AIreceptionist #tidemerge'
+},
+{
+  id: 'medspa',
+  niche: 'Med Spas & Salons',
+  tag: 'Booking while working',
+  miss: 'Mid-service, when your hands are literally full',
+  hook: 'You can’t take a booking with gloves on.',
+  long: `Your hands are in someone’s hair, or holding a laser, or halfway through a lash set. The phone rings. You let it go — because of course you do.
+
+That caller wanted a consult. They found somebody who picked up.
+
+The early years of a spa or salon are the ones where every single booking counts. They are also the years you are the owner, the operator and the receptionist at the same time.
+
+AI has gotten good enough to actually help with that now. TideMerge answers in your voice, walks through your services and pricing, screens for the right treatment, and books it into your calendar with a deposit link — while you keep working.
+
+No interrupting a client. No callback list at 8 PM.
+
+Live in 5 days → tidemerge.com`,
+  short: `Hands in someone’s hair, mid-lash set, holding a laser — the phone rings and you let it go. That was a consult. TideMerge answers in your voice, screens the treatment, and books it while you keep working.`,
+  tags: '#medspa #salonowner #esthetician #lashartist #hairstylist #beautybusiness #salonlife #bookedandbusy #AIreceptionist #tidemerge'
+},
+{
+  id: 'realestate',
+  niche: 'Real Estate Agents',
+  tag: 'Sign-call speed',
+  miss: 'The sign call that lands while you’re at a showing',
+  hook: 'A sign call has a shelf life of about five minutes.',
+  long: `Someone pulls over in front of your listing, punches the number on the sign into their phone, and calls.
+
+You’re mid-showing. It goes to voicemail — and they’re already dialing the next sign down the street. Buyer interest cools that fast.
+
+Newer agents feel this most. No team, no ISA, no assistant. Just you and a phone that rings at the worst possible moments.
+
+Here’s what changed: AI can now hold that conversation properly. TideMerge picks up instantly in your voice, answers questions about the listing, finds out whether they’re pre-approved and already working with an agent, and puts a showing on your calendar.
+
+You get the transcript before you’re back in the car. The lead never sat in a voicemail box.
+
+Hear what yours sounds like → tidemerge.com`,
+  short: `They pull over, call the sign, and you’re mid-showing. Voicemail means they’re already dialing the next listing. TideMerge answers instantly in your voice, qualifies them, and books the showing. Transcript waiting when you’re back in the car.`,
+  tags: '#realestateagent #realtorlife #listingagent #realestatemarketing #newagent #leadgeneration #realestatetips #AIreceptionist #tidemerge'
+},
+{
+  id: 'legal',
+  niche: 'Solo & Small Law Firms',
+  tag: 'Intake races',
+  miss: 'Nights, weekends, and every hour you’re in court',
+  hook: 'In intake, the first firm to answer usually gets the case.',
+  long: `Someone gets rear-ended on a Saturday. Someone gets served papers at 11 PM. They don’t wait until Monday — they start calling.
+
+In legal intake, the firm that answers is usually the firm that gets retained. Not the best firm on the list. The one that picked up.
+
+For a solo or a two-attorney shop that’s brutal, because the hours you’re least reachable are the hours you’re actually working. Court. Depositions. Client meetings.
+
+AI finally handles this well. TideMerge answers every call in your voice, runs your intake script, captures the facts, flags potential conflicts for your review, and books the consult.
+
+Nothing sits in a voicemail box until Monday. You practice law — it handles the phone.
+
+Live in 5 days → tidemerge.com`,
+  short: `Rear-ended Saturday. Served papers at 11 PM. They start calling, and the firm that answers is the firm that gets retained. TideMerge runs your intake script in your voice, captures the facts, books the consult. 24/7.`,
+  tags: '#lawfirm #solopractitioner #attorneylife #legalintake #personalinjury #familylaw #lawfirmmarketing #AIreceptionist #tidemerge'
+},
+{
+  id: 'auto',
+  niche: 'Auto Repair & Detailing',
+  tag: 'Nobody owns the phone',
+  miss: 'Every hour the bay is full',
+  hook: 'You can’t answer the phone with a torque wrench in your hand.',
+  long: `Bay’s full. You’re elbow-deep in a timing job. The phone rings six times and stops.
+
+That was somebody who needs brakes this week, and they’re now calling the shop across town.
+
+Independent shops run lean by design — you, a tech or two, and nobody whose actual job is the phone. Early on, that gap is your whole margin.
+
+AI closed it. TideMerge answers in your voice, quotes your standard jobs, tells them whether you work on their make, gives them your turnaround, and books the bay.
+
+You keep wrenching. The schedule keeps filling.
+
+Hear what yours sounds like → tidemerge.com`,
+  short: `Bay’s full, you’re elbow-deep in a timing job, the phone rings six times and stops. That was a brake job going across town. TideMerge answers in your voice, quotes the standard work, and books the bay.`,
+  tags: '#autorepair #mechaniclife #autoshop #independentshop #detailing #cardetailing #shopowner #AIreceptionist #tidemerge'
+},
+{
+  id: 'landscaping',
+  niche: 'Landscaping & Lawn Care',
+  tag: 'Seasonal crunch',
+  miss: 'The spring rush, behind a running mower',
+  hook: 'Nobody hears the phone over a mower.',
+  long: `March hits and the calls start. Everyone wants a quote in the same three weeks, and you’re standing on a property with equipment running.
+
+By the time you’re back in the truck you have nine missed calls and no idea which ones were worth returning. Half of them won’t pick up when you call back.
+
+That spring window is where a young landscaping business books its entire year.
+
+AI is good enough now to work that window for you. TideMerge answers each call in your voice, gets the address and property size, explains whether you do maintenance, installs or both, quotes your minimums, and puts the estimate on your calendar.
+
+You come back to a booked week instead of a callback list.
+
+Live in 5 days → tidemerge.com`,
+  short: `March hits, everyone wants a quote in the same three weeks, and you’re behind a running mower. Nine missed calls by lunch and half won’t answer the callback. TideMerge answers every one and books the estimates.`,
+  tags: '#landscaping #lawncare #landscapedesign #hardscaping #greenindustry #lawncarebusiness #springrush #AIreceptionist #tidemerge'
+},
+{
+  id: 'cleaning',
+  niche: 'Cleaning Services',
+  tag: 'Same-day requests',
+  miss: 'Every hour you’re on the crew instead of the phone',
+  hook: '"Can you come Thursday?" is a question with a very short fuse.',
+  long: `Somebody has family flying in this weekend and they want a deep clean before Thursday. Right now they’re calling three companies.
+
+You’re on a job with a vacuum running. You’ll see the missed call at 4. By then it’s booked somewhere else.
+
+When you’re building a cleaning business you’re on the crew — which is exactly why the phone doesn’t get answered. That’s not a discipline problem. It’s a staffing problem you can’t afford to solve yet.
+
+So solve it the new way. TideMerge picks up in your voice, asks square footage, bedrooms and baths, whether it’s recurring or one-time, quotes from your pricing, and books the job.
+
+Same-day requests get a real answer in real time. No callbacks. No lost Thursdays.
+
+Hear what yours sounds like → tidemerge.com`,
+  short: `"Can you come Thursday?" — they’re calling three companies right now and you’re on a job with a vacuum running. TideMerge picks up in your voice, quotes from your pricing, and books it before they hang up.`,
+  tags: '#cleaningbusiness #housecleaning #maidservice #commercialcleaning #cleaningcompany #smallbusinessowner #AIreceptionist #tidemerge'
+},
+{
+  id: 'fitness',
+  niche: 'Fitness Studios & Trainers',
+  tag: 'Trial conversion',
+  miss: 'Mid-session, mid-class, every time',
+  hook: 'You’re coaching. You can’t also be the front desk.',
+  long: `Somebody sees your reel, wants to try a class, and calls. You’re spotting a deadlift.
+
+They don’t leave a message. People almost never do. They just book at the studio that answered.
+
+New studios and independent trainers live on trial conversions, and the trial starts with someone reaching an actual human on the first try. That used to mean hiring a desk person you can’t justify yet.
+
+Not anymore. TideMerge answers in your voice, explains your class schedule and membership options, handles "how much is it," and books the intro session — mid-set, mid-class, doesn’t matter.
+
+Coach the person in front of you. It’ll handle the one on the phone.
+
+Live in 5 days → tidemerge.com`,
+  short: `Someone sees your reel, calls about a trial, and you’re spotting a deadlift. They don’t leave a message — nobody does. TideMerge answers in your voice, explains pricing, and books the intro session.`,
+  tags: '#personaltrainer #fitnessstudio #gymowner #crossfit #pilatesstudio #fitnessbusiness #studioowner #AIreceptionist #tidemerge'
+},
+{
+  id: 'vet',
+  niche: 'Veterinary Clinics',
+  tag: 'Lobby vs. phone',
+  miss: 'Every minute the lobby is full',
+  hook: 'The lobby is full and the phone hasn’t stopped since 8 AM.',
+  long: `Two techs in back, a full lobby, four lines lit up. Somebody’s calling about a limping dog, somebody wants a refill, somebody’s asking your boarding rates for the third time this week.
+
+Your team is handling the room and the hold queue at the same time. Something gets dropped, and it’s usually the caller.
+
+Smaller and newer practices carry this hardest, because there is nobody whose only job is the phone.
+
+AI can take the routine volume now, and take it well. TideMerge answers in a voice that matches your clinic, handles hours, pricing, boarding and general questions, books wellness and vaccine appointments, and routes anything urgent straight through to your team.
+
+Your staff gets the lobby back.
+
+Hear what yours sounds like → tidemerge.com`,
+  short: `Full lobby, four lines lit, two techs in back — and someone’s asking boarding rates for the third time this week. TideMerge takes the routine calls in your clinic’s voice and routes the urgent ones straight to your team.`,
+  tags: '#veterinary #vetclinic #vetmed #animalhospital #veterinarian #practicemanager #petcare #AIreceptionist #tidemerge'
+},
+{
+  id: 'insurance',
+  niche: 'Insurance & Financial Advisors',
+  tag: 'Quote shoppers',
+  miss: 'Every appointment you’re sitting in',
+  hook: 'A quote shopper calls three agents and keeps the one who answers.',
+  long: `Someone just bought a car and needs proof of insurance today. Someone else opened a renewal notice with a number they don’t like and is shopping it right now.
+
+Neither of them is leaving a voicemail. They’re working down a list.
+
+Independent agents building a book feel every one of those calls, because you’re in appointments and the phone is your pipeline.
+
+AI is good enough now to work that pipeline while you’re in the room. TideMerge answers in your voice, gathers what you actually need to quote — coverage type, current carrier, timeline — and books the follow-up call.
+
+You come out of your meeting with a qualified lead instead of a number you don’t recognize.
+
+Live in 5 days → tidemerge.com`,
+  short: `Quote shoppers don’t leave voicemails — they work down a list and keep whoever answers. TideMerge picks up in your voice, gathers what you need to quote, and books the follow-up. You come back to a qualified lead.`,
+  tags: '#insuranceagent #independentagent #financialadvisor #insurancebroker #agencyowner #bookofbusiness #leadgeneration #AIreceptionist #tidemerge'
+}
+];
+
+// ─── COPY HELPER ────────────────────────────────────────────────
+function copyText(text, btn, restore) {
+  const done = () => {
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = restore; btn.classList.remove('done'); }, 1800);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallback(text, done));
+  } else {
+    fallback(text, done);
+  }
+}
+
+function fallback(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch (e) { /* clipboard unavailable */ }
+  document.body.removeChild(ta);
+  done();
+}
+
+// ─── WELL BUILDER ───────────────────────────────────────────────
+function buildWell(label, text, opts) {
+  opts = opts || {};
+  const well = document.createElement('div');
+  well.className = 'well';
+
+  const head = document.createElement('div');
+  head.className = 'well-head';
+
+  const lbl = document.createElement('span');
+  lbl.className = 'well-label';
+  lbl.textContent = label;
+  head.appendChild(lbl);
+
+  const count = document.createElement('span');
+  count.className = 'count';
+  count.textContent = text.length + ' chars';
+  if (opts.limit && text.length > opts.limit) count.classList.add('over');
+  head.appendChild(count);
+
+  const btn = document.createElement('button');
+  btn.className = 'copy';
+  btn.type = 'button';
+  btn.textContent = 'Copy';
+  btn.addEventListener('click', () => copyText(text, btn, 'Copy'));
+  head.appendChild(btn);
+
+  const body = document.createElement('div');
+  body.className = 'body-text' + (opts.tags ? ' tags' : '');
+  body.textContent = text;
+
+  well.appendChild(head);
+  well.appendChild(body);
+  return well;
+}
+
+// ─── RENDER ─────────────────────────────────────────────────────
+const stack = document.getElementById('stack');
+const jump  = document.getElementById('jump');
+
+POSTS.forEach(p => {
+  const link = document.createElement('a');
+  link.href = '#' + p.id;
+  link.textContent = p.niche;
+  jump.appendChild(link);
+
+  const art = document.createElement('article');
+  art.className = 'post';
+  art.id = p.id;
+
+  const head = document.createElement('header');
+  head.className = 'post-head';
+
+  const left = document.createElement('div');
+  const h2 = document.createElement('h2');
+  h2.textContent = p.niche;
+  const miss = document.createElement('p');
+  miss.className = 'miss';
+  const missLabel = document.createElement('span');
+  missLabel.textContent = 'Missed calls';
+  miss.appendChild(missLabel);
+  miss.appendChild(document.createTextNode(p.miss));
+  left.appendChild(h2);
+  left.appendChild(miss);
+
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.textContent = p.tag;
+
+  head.appendChild(left);
+  head.appendChild(tag);
+
+  const hook = document.createElement('p');
+  hook.className = 'hook';
+  hook.textContent = p.hook;
+
+  const wells = document.createElement('div');
+  wells.className = 'wells';
+  wells.appendChild(buildWell('Instagram / Facebook', p.long));
+  wells.appendChild(buildWell('X / Threads — short cut', p.short, { limit: 280 }));
+  wells.appendChild(buildWell('Hashtags', p.tags, { tags: true }));
+
+  const foot = document.createElement('div');
+  foot.className = 'post-foot';
+  const all = document.createElement('button');
+  all.className = 'copy-all';
+  all.type = 'button';
+  all.textContent = 'Copy post + hashtags';
+  all.addEventListener('click', () => copyText(p.long + '\n\n' + p.tags, all, 'Copy post + hashtags'));
+  foot.appendChild(all);
+
+  art.appendChild(head);
+  art.appendChild(hook);
+  art.appendChild(wells);
+  art.appendChild(foot);
+  stack.appendChild(art);
+});
+</script>
+</body>
+</html>
